@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acgtubio/eydsh-auth/internal/auth"
 	"github.com/acgtubio/eydsh-auth/routes"
 )
 
@@ -30,8 +31,13 @@ func run(
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	// TODO: Implement proper error handling and goroutines
-	server := routes.NewServer()
+	// TODO: Implement provider for auth service
+	authService, err := auth.DefaultAuthService()
+	if err != nil {
+		return err
+	}
+
+	server := routes.NewServer(authService)
 	httpServer := &http.Server{
 		Addr:    ":8080",
 		Handler: server,
